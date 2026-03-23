@@ -1,0 +1,27 @@
+# SOC Lab: Firewall Logging with iptables on Kali Linux
+# Objective: Detect SSH login attempts and ICMP (ping) traffic and block unauthorized SSH access
+
+# ---- INPUT chain rules ----
+
+# 1. Log all incoming SSH connection attempts (port 22)
+iptables -A INPUT -p tcp --dport 22 -j LOG --log-prefix "SSH_ATTEMPT: "
+
+# 2. Block SSH after logging (security measure)
+iptables -A INPUT -p tcp --dport 22 -j DROP
+
+# 3. Log all incoming ICMP (ping) traffic
+iptables -A INPUT -p icmp -j LOG --log-prefix "PING_DETECTED: "
+
+# ---- OUTPUT chain ----
+# No special rules; allow all outbound traffic
+
+# ---- FORWARD chain ----
+# Not used in this lab (Kali not acting as a router)
+
+# ---- Notes ----
+# - Logs are monitored via:
+#     dmesg -w        # real-time kernel log
+#     journalctl -f -k # kernel logs follow
+# - Packet counters can be viewed with:
+#     iptables -L -v -n
+# - After adding DROP rule, SSH connection attempts will fail but be logged
